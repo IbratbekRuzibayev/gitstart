@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitStart - Noldan boshlang. Loyihangizni yarating. GitHub'ga joylang!</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- React & ReactDOM -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        ghDark: '#0d1117',
+                        ghDarker: '#010409',
+                        ghBorder: '#30363d',
+                        ghBlue: '#58a6ff',
+                        ghGreen: '#238636',
+                        ghGreenHover: '#2ea043'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji"; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .prose code { background-color: rgba(175, 184, 193, 0.2); padding: 0.2em 0.4em; border-radius: 6px; font-size: 85%; }
+        .dark .prose code { background-color: rgba(110, 118, 129, 0.4); }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900 transition-colors duration-200">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useMemo } = React;
+
+        // --- MA'LUMOTLAR BAZASI (CURRICULUM) ---
+        const curriculum = [
+            {
+                id: 'stage-1',
+                title: '1-bosqich. Tayyorgarlik',
+                steps: [
+                    {
+                        id: 's1-1',
+                        title: 'Git va GitHub nima?',
+                        goal: "Asosiy tushunchalar va farqlarni o'rganish.",
+                        explanation: "Dasturlashda bitta loyiha ustida uzoq vaqt ishlasangiz, fayllar ko'payib, o'zgarishlar chalkashib ketadi. Git — bu fayllaringiz tarixini saqlab beruvchi 'zaman mashinasi' (dastur). GitHub esa — bu Git orqali saqlangan tarixingizni internetga joylash, boshqalar bilan ulashish va jamoa bo'lib ishlash uchun ijtimoiy tarmoq (veb-sayt).",
+                        instruction: "Kompyuteringizda Git dasturi o'rnatilganini tekshiramiz. Buning uchun 'Terminal' yoki 'Command Prompt' (CMD) ni oching.",
+                        code: "git --version",
+                        expected: "Agar Git o'rnatilgan bo'lsa, 'git version 2.x.x' kabi yozuv chiqadi. Agar xatolik bersa, git-scm.com saytidan yuklab o'rnating.",
+                        check: "Terminal natijasini ko'rganingizga ishonch hosil qiling.",
+                        quiz: {
+                            question: "Git va GitHub o'rtasidagi asosiy farq nima?",
+                            options: [
+                                "Farqi yo'q, ikkalasi ham bitta narsa.",
+                                "Git bu kompyuterdagi dastur, GitHub esa internetdagi sayt (platforma).",
+                                "GitHub faqat pullik loyihalar uchun, Git esa bepul."
+                            ],
+                            answer: 1
+                        }
+                    },
+                    {
+                        id: 's1-2',
+                        title: 'Git konfiguratsiyasini sozlash',
+                        goal: "Git'ga o'zingizni tanishtirish.",
+                        explanation: "Git har bir o'zgarishni kim qilganini bilishi kerak. Buning uchun ismingiz va emailingizni kiritib qo'yishimiz shart. Bu ma'lumotlar keyinchalik GitHub'dagi profilingizga bog'lanadi.",
+                        instruction: "Terminalni oching va quyidagi buyruqlarni o'z ma'lumotlaringiz bilan almashtirib, bittadan kiriting.",
+                        code: "git config --global user.name \"Ismingiz\"\ngit config --global user.email \"emailingiz@gmail.com\"",
+                        expected: "Buyruqlar hech qanday xatoliksiz, jim bajariladi. Bu normal holat.",
+                        check: "Sozlamalar saqlanganini tekshirish uchun 'git config user.name' deb yozib ko'ring.",
+                        quiz: {
+                            question: "Nima uchun Git'ga ism va email kiritamiz?",
+                            options: [
+                                "Kompyuter viruslardan himoyalanishi uchun.",
+                                "Kodni internetga tezroq yuklash uchun.",
+                                "Har bir kiritilgan o'zgarish (commit) kim tomonidan bajarilganini aniq saqlash uchun."
+                            ],
+                            answer: 2
+                        }
+                    }
+                ]
+            },
+            {
+                id: 'stage-2',
+                title: '2-bosqich. Birinchi loyiha',
+                steps: [
+                    {
+                        id: 's2-1',
+                        title: 'Loyiha papkasini yaratish',
+                        goal: "Shaxsiy veb-saytimiz uchun poydevor tayyorlash.",
+                        explanation: "Har qanday veb-loyiha bitta asosiy papkadan boshlanadi. Biz kod yozish uchun 'Visual Studio Code' (VS Code) dasturidan foydalanamiz, chunki u dasturchilar orasida eng mashhuri.",
+                        instruction: "1. Ish stolida (Desktop) 'mening-vizitkam' degan papka yarating.\n2. VS Code dasturini oching.\n3. 'File' -> 'Open Folder' orqali shu papkani tanlang.\n4. Papka ichida 'index.html' nomli yangi fayl yarating va quyidagi kodni uning ichiga tashlang.",
+                        code: "<!DOCTYPE html>\n<html>\n<head>\n  <title>Mening Vizitkam</title>\n  <style>\n    body { font-family: sans-serif; text-align: center; margin-top: 50px; background-color: #f0f8ff; }\n    .card { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); display: inline-block; }\n  </style>\n</head>\n<body>\n  <div class=\"card\">\n    <h1>Salom, men bo'lajak dasturchiman!</h1>\n    <p>Bu mening birinchi Git loyiham.</p>\n  </div>\n</body>\n</html>",
+                        expected: "index.html faylini saqlab, uni brauzerda (Chrome) ochsangiz, chiroyli oq kartochkada yozuvlarni ko'rasiz.",
+                        check: "Faylni brauzerda ochib ko'rdingizmi?",
+                        actionCheck: "Ha, kodni yozdim va brauzerda ko'rdim."
+                    }
+                ]
+            },
+            {
+                id: 'stage-3',
+                title: '3-bosqich. Git bilan ishlash',
+                steps: [
+                    {
+                        id: 's3-1',
+                        title: 'Git initsializatsiyasi (git init)',
+                        goal: "Oddiy papkani Git loyihasiga aylantirish.",
+                        explanation: "Git o'z-o'zidan barcha papkalarni kuzatmaydi. Unga aynan shu 'mening-vizitkam' papkasini kuzatishni buyurishimiz kerak. 'init' so'zi 'initialization' (boshlash) degani.",
+                        instruction: "VS Code'ning o'zida terminalni oching (Terminal -> New Terminal) va quyidagi buyruqni kiriting.",
+                        code: "git init",
+                        expected: "Terminalda 'Initialized empty Git repository...' degan xabar chiqadi. Bu papka ichida yashirin '.git' papkasi yaratilganini bildiradi.",
+                        check: "Endi loyihamiz Git nazoratida.",
+                        quiz: {
+                            question: "'git init' buyrug'i nima ish qiladi?",
+                            options: [
+                                "Fayllarni o'chirib yuboradi.",
+                                "Oddiy papkani Git kuzatadigan maxsus loyihaga (repository) aylantiradi.",
+                                "Kodni to'g'ridan-to'g'ri GitHub'ga yuklaydi."
+                            ],
+                            answer: 1
+                        }
+                    },
+                    {
+                        id: 's3-2',
+                        title: 'O\'zgarishlarni saqlash (add va commit)',
+                        goal: "Yaratilgan faylni Git tarixiga yozish.",
+                        explanation: "Git'da kodni saqlash ikki bosqichdan iborat: \n1. 'git add' - o'zgartirilgan fayllarni saqlash uchun navbatga (Staging Area) qo'yadi.\n2. 'git commit' - navbatdagi fayllarni rasmga olgandek tarixga muhrlaydi va izoh yozadi.",
+                        instruction: "VS Code terminalida quyidagi ikkita buyruqni ketma-ket kiriting.",
+                        code: "git add index.html\ngit commit -m \"feat: birinchi vizitka sahifasi yaratildi\"",
+                        expected: "Terminalda fayl muvaffaqiyatli saqlangani haqida (1 file changed) xabar chiqadi.",
+                        check: "Tarixni ko'rish uchun 'git log' buyrug'idan foydalanishingiz mumkin.",
+                        quiz: {
+                            question: "Commit qilishda '-m' parametri nimani anglatadi?",
+                            options: [
+                                "Message (Xabar) - commit uchun tushuntirish izohini yozishni.",
+                                "Merge (Birlashtirish) - ikkita kodni birlashtirishni.",
+                                "Main - asosiy tarmoqqa o'tishni."
+                            ],
+                            answer: 0
+                        }
+                    }
+                ]
+            },
+            {
+                id: 'stage-4',
+                title: '4-bosqich. GitHub bilan ishlash',
+                steps: [
+                    {
+                        id: 's4-1',
+                        title: 'GitHub Repository yaratish',
+                        goal: "Internetda kodimiz uchun joy ochish.",
+                        explanation: "Lokal (kompyuteringizdagi) kodlarni internetga joylash uchun avval GitHub saytida bo'sh loyiha (repository) ochishimiz kerak.",
+                        instruction: "1. github.com saytiga kiring va ro'yxatdan o'ting.\n2. O'ng yuqori burchakdagi '+' belgisini bosib, 'New repository' ni tanlang.\n3. Repository name ga 'mening-vizitkam' deb yozing.\n4. Boshqa hech narsaga teginmasdan (README ham qo'shmang), yashil 'Create repository' tugmasini bosing.",
+                        code: null,
+                        expected: "GitHub sizga yangi, bo'sh loyiha sahifasini va terminal uchun tayyor buyruqlarni ko'rsatadi.",
+                        check: "GitHub'da repository muvaffaqiyatli ochildimi?",
+                        actionCheck: "Ha, repository yaratdim va havolasini oldim."
+                    },
+                    {
+                        id: 's4-2',
+                        title: 'Lokal kodni GitHub\'ga ulash (Push)',
+                        goal: "Kompyuterdagi kodni internetdagi GitHub'ga yuborish.",
+                        explanation: "Endi kompyuteringizdagi Git'ga GitHub'dagi yangi manzilingizni ko'rsatib, fayllarni yuboramiz (push qilamiz).",
+                        instruction: "VS Code terminalida quyidagi buyruqlarni kiriting (DIQQAT: 'USERNAME' o'rniga o'zingizning GitHub loginingizni yozing!).",
+                        code: "git branch -M main\ngit remote add origin https://github.com/USERNAME/mening-vizitkam.git\ngit push -u origin main",
+                        expected: "Buyruq bajarilayotganda GitHub parolingizni (yoki brauzer orqali tasdiqlashni) so'raydi. Tasdiqlaganingizdan so'ng kod serverga yuklanadi.",
+                        check: "GitHub sahifangizni yangilab (F5) ko'ring. U yerda sizning 'index.html' faylingiz paydo bo'lishi kerak!",
+                        quiz: {
+                            question: "'git push' buyrug'ining vazifasi nima?",
+                            options: [
+                                "GitHub'dan kodni kompyuterga ko'chirib olish.",
+                                "Kompyuterdagi (lokal) commit qilingan o'zgarishlarni masofaviy (remote) GitHub serveriga yuborish.",
+                                "Yangi fayl yaratish."
+                            ],
+                            answer: 1
+                        }
+                    }
+                ]
+            },
+            {
+                id: 'stage-5',
+                title: '5-bosqich. Internetda e\'lon qilish',
+                steps: [
+                    {
+                        id: 's5-1',
+                        title: 'GitHub Pages ni yoqish',
+                        goal: "Yozgan kodimizni hamma ko'ra oladigan haqiqiy veb-saytga aylantirish.",
+                        explanation: "GitHub Pages — bu sizning HTML/CSS fayllaringizni bepul hostingga qo'yib, ochiq havola (URL) qilib beradigan ajoyib xizmat. Endi siz yaratgan vizitkani butun dunyo ko'rishi mumkin!",
+                        instruction: "1. GitHub'dagi 'mening-vizitkam' repository sahifasiga kiring.\n2. Yuqoridagi menyudan 'Settings' (Sozlamalar) ga kiring.\n3. Chap paneldan 'Pages' bo'limini tanlang.\n4. 'Branch' bo'limida 'None' o'rniga 'main' ni tanlab, 'Save' tugmasini bosing.",
+                        code: null,
+                        expected: "1-2 daqiqadan so'ng shu sahifaning tepasida 'Your site is live at https://USERNAME.github.io/mening-vizitkam/' degan yashil xabar paydo bo'ladi.",
+                        check: "Saytingiz internetga chiqdimi?",
+                        actionCheck: "Ha, yashil xabarni va havolani ko'rdim!"
+                    },
+                    {
+                        id: 's5-2',
+                        title: 'Natijani tekshirish',
+                        goal: "Tayyor saytni ochib, havolani do'stlar bilan ulashish.",
+                        explanation: "Tabriklaymiz! Siz noldan boshlab loyiha yaratdingiz, Git orqali boshqardingiz va GitHub orqali butun dunyoga e'lon qildingiz. Bu haqiqiy dasturchilar har kuni bajaradigan jarayonning o'zi!",
+                        instruction: "GitHub Pages taqdim etgan havolani bosing. Saytingiz brauzerda qanday ko'rinayotganini tekshiring.",
+                        code: null,
+                        expected: "Brauzerda siz yozgan oq vizitka kartochkasi internetda, ochiq havola orqali ochiladi.",
+                        check: "Siz buni uddaladingiz!",
+                        quiz: {
+                            question: "Ushbu jarayonda nimalarni o'rgandingiz?",
+                            options: [
+                                "Faqat nazariyani o'qidim.",
+                                "Git/GitHub asoslari, terminal buyruqlari va saytni internetga joylashni amalda qildim!",
+                                "Hech narsani tushunmadim."
+                            ],
+                            answer: 1
+                        }
+                    }
+                ]
+            },
+            {
+                id: 'stage-6',
+                title: '6-bosqich. Mustaqil ishlash',
+                steps: [
+                    {
+                        id: 's6-1',
+                        title: 'Loyihani yangilash',
+                        goal: "Bilimlarni amalda mustahkamlash.",
+                        explanation: "Haqiqiy dasturlash doimiy o'zgartirishlardan iborat. Keling, vizitkamizga yangi ma'lumot qo'shamiz va bu o'zgarishni GitHub'ga yuboramiz (GitHub Flow).",
+                        instruction: "1. VS Code'da 'index.html' ni oching.\n2. <p> tegidan keyin yangi qator qo'shing: <h3>Mening ko'nikmalarim: Git, HTML, CSS</h3>\n3. Faylni saqlang.\n4. Terminalda quyidagi amallarni birma-bir bajaring: add, commit va push.",
+                        code: "git add index.html\ngit commit -m \"feat: ko'nikmalar ro'yxati qo'shildi\"\ngit push",
+                        expected: "Kodingiz GitHub'ga ketadi. 1-2 daqiqadan so'ng GitHub Pages havolangizni yangilasangiz (F5), yangi yozuvni ko'rasiz.",
+                        check: "O'zgarish saytda ko'rindimi?",
+                        actionCheck: "Mustaqil vazifani muvaffaqiyatli bajardim!"
+                    }
+                ]
+            }
+        ];
+
+        // --- COMPONENTS ---
+
+        const Icon = ({ name, className = "" }) => (
+            <i className={`fas fa-${name} ${className}`}></i>
+        );
+
+        const ThemeToggle = ({ isDark, toggle }) => (
+            <button 
+                onClick={toggle} 
+                className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-ghBorder transition-colors"
+                title={isDark ? "Light mode" : "Dark mode"}
+            >
+                <Icon name={isDark ? "sun" : "moon"} className="text-xl text-gray-600 dark:text-gray-300" />
+            </button>
+        );
+
+        const CodeBlock = ({ code }) => {
+            const [copied, setCopied] = useState(false);
+            
+            const handleCopy = () => {
+                navigator.clipboard.writeText(code);
+                setCopied(true);
+                setTimeout(() => setCopied(false), 2000);
+            };
+
+            if (!code) return null;
+
+            return (
+                <div className="relative mt-4 mb-6 rounded-lg overflow-hidden bg-gray-900 shadow-lg">
+                    <div className="flex justify-between items-center px-4 py-2 bg-gray-800 text-gray-400 text-xs font-mono">
+                        <span>Terminal / Editor</span>
+                        <button 
+                            onClick={handleCopy}
+                            className="hover:text-white transition-colors flex items-center gap-1"
+                        >
+                            <Icon name={copied ? "check" : "copy"} />
+                            {copied ? "Nusxalandi" : "Nusxalash"}
+                        </button>
+                    </div>
+                    <pre className="p-4 overflow-x-auto text-sm text-gray-100 font-mono hide-scrollbar">
+                        <code>{code}</code>
+                    </pre>
+                </div>
+            );
+        };
+
+        const QuizOrAction = ({ step, onPass }) => {
+            const [selected, setSelected] = useState(null);
+            const [isCorrect, setIsCorrect] = useState(null);
+
+            if (step.quiz) {
+                const handleCheck = () => {
+                    if (selected === step.quiz.answer) {
+                        setIsCorrect(true);
+                        onPass();
+                    } else {
+                        setIsCorrect(false);
+                    }
+                };
+
+                return (
+                    <div className="mt-8 p-6 bg-blue-50 dark:bg-[#1f2937] border border-blue-100 dark:border-ghBorder rounded-xl">
+                        <h4 className="font-bold text-blue-800 dark:text-blue-400 flex items-center gap-2 mb-4">
+                            <Icon name="brain" /> Mustahkamlash (Test)
+                        </h4>
+                        <p className="font-medium text-gray-800 dark:text-gray-200 mb-4">{step.quiz.question}</p>
+                        <div className="flex flex-col gap-3">
+                            {step.quiz.options.map((opt, idx) => (
+                                <button
+                                    key={idx}
+                                    onClick={() => { setSelected(idx); setIsCorrect(null); }}
+                                    className={`text-left p-3 rounded-lg border transition-all ${
+                                        selected === idx 
+                                        ? 'border-blue-500 bg-blue-100 dark:bg-blue-900 dark:text-white' 
+                                        : 'border-gray-300 dark:border-ghBorder bg-white dark:bg-ghDark hover:bg-gray-50 dark:hover:bg-gray-800 dark:text-gray-300'
+                                    }`}
+                                >
+                                    {opt}
+                                </button>
+                            ))}
+                        </div>
+                        <div className="mt-4 flex items-center justify-between">
+                            <button 
+                                onClick={handleCheck}
+                                disabled={selected === null}
+                                className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg disabled:opacity-50 transition-colors"
+                            >
+                                Tekshirish
+                            </button>
+                            {isCorrect === true && <span className="text-green-600 dark:text-green-400 font-bold flex items-center gap-1"><Icon name="check-circle"/> To'g'ri!</span>}
+                            {isCorrect === false && <span className="text-red-600 dark:text-red-400 font-bold flex items-center gap-1"><Icon name="times-circle"/> Xato, qayta urinib ko'ring.</span>}
+                        </div>
+                    </div>
+                );
+            }
+
+            if (step.actionCheck) {
+                return (
+                    <div className="mt-8 p-6 bg-indigo-50 dark:bg-[#1e1e2e] border border-indigo-100 dark:border-gray-700 rounded-xl">
+                        <h4 className="font-bold text-indigo-800 dark:text-indigo-400 flex items-center gap-2 mb-4">
+                            <Icon name="check-square" /> Amaliyotni tasdiqlash
+                        </h4>
+                        <p className="text-gray-700 dark:text-gray-300 mb-4">{step.check}</p>
+                        <button 
+                            onClick={() => { setIsCorrect(true); onPass(); }}
+                            className={`w-full font-medium py-3 px-6 rounded-lg transition-colors flex justify-center items-center gap-2 ${
+                                isCorrect 
+                                ? 'bg-green-600 text-white cursor-default' 
+                                : 'bg-indigo-600 hover:bg-indigo-700 text-white'
+                            }`}
+                        >
+                            {isCorrect ? <><Icon name="check" /> Tasdiqlandi!</> : step.actionCheck}
+                        </button>
+                    </div>
+                );
+            }
+
+            return null;
+        };
+
+        const App = () => {
+            // State
+            const [view, setView] = useState('landing'); // 'landing' | 'course'
+            const [completedSteps, setCompletedSteps] = useState([]);
+            const [currentStepId, setCurrentStepId] = useState(curriculum[0].steps[0].id);
+            const [isDark, setIsDark] = useState(false);
+            const [isCurrentStepPassed, setIsCurrentStepPassed] = useState(false);
+
+            // Initialize from LocalStorage
+            useEffect(() => {
+                const savedProgress = localStorage.getItem('gitstart_progress');
+                if (savedProgress) {
+                    const parsed = JSON.parse(savedProgress);
+                    setCompletedSteps(parsed.completedSteps || []);
+                    if (parsed.currentStepId) setCurrentStepId(parsed.currentStepId);
+                }
+                
+                const theme = localStorage.getItem('gitstart_theme');
+                if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                    setIsDark(true);
+                    document.documentElement.classList.add('dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                }
+            }, []);
+
+            // Save to LocalStorage
+            useEffect(() => {
+                localStorage.setItem('gitstart_progress', JSON.stringify({ completedSteps, currentStepId }));
+            }, [completedSteps, currentStepId]);
+
+            // Theme toggle
+            const toggleTheme = () => {
+                if (isDark) {
+                    document.documentElement.classList.remove('dark');
+                    localStorage.setItem('gitstart_theme', 'light');
+                    setIsDark(false);
+                } else {
+                    document.documentElement.classList.add('dark');
+                    localStorage.setItem('gitstart_theme', 'dark');
+                    setIsDark(true);
+                }
+            };
+
+            // Calculated values
+            const allSteps = useMemo(() => curriculum.flatMap(stage => stage.steps), []);
+            const totalSteps = allSteps.length;
+            const progressPercent = Math.round((completedSteps.length / totalSteps) * 100);
+            
+            const currentStepIndex = allSteps.findIndex(s => s.id === currentStepId);
+            const currentStep = allSteps[currentStepIndex];
+            const currentStage = curriculum.find(stage => stage.steps.some(s => s.id === currentStepId));
+
+            // Handlers
+            const handlePassStep = () => {
+                setIsCurrentStepPassed(true);
+                if (!completedSteps.includes(currentStepId)) {
+                    setCompletedSteps([...completedSteps, currentStepId]);
+                }
+            };
+
+            const goToNextStep = () => {
+                if (currentStepIndex < totalSteps - 1) {
+                    const nextStep = allSteps[currentStepIndex + 1];
+                    setCurrentStepId(nextStep.id);
+                    setIsCurrentStepPassed(completedSteps.includes(nextStep.id));
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            };
+
+            const goToStep = (stepId) => {
+                // Allow jumping to completed steps or the FIRST uncompleted step
+                const stepIdx = allSteps.findIndex(s => s.id === stepId);
+                const isAccessible = completedSteps.includes(stepId) || 
+                                     (stepIdx === 0) || 
+                                     completedSteps.includes(allSteps[stepIdx - 1].id);
+                
+                if (isAccessible) {
+                    setCurrentStepId(stepId);
+                    setIsCurrentStepPassed(completedSteps.includes(stepId));
+                    setView('course');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            };
+
+            const resetProgress = () => {
+                if(confirm("Barcha yutuqlaringiz o'chib ketadi. Boshidan boshlashga ishonchingiz komilmi?")) {
+                    setCompletedSteps([]);
+                    setCurrentStepId(allSteps[0].id);
+                    setIsCurrentStepPassed(false);
+                    localStorage.removeItem('gitstart_progress');
+                }
+            };
+
+            // Views
+            if (view === 'landing') {
+                return (
+                    <div className="min-h-screen bg-white dark:bg-ghDark transition-colors duration-200">
+                        {/* Navbar */}
+                        <nav className="border-b border-gray-200 dark:border-ghBorder bg-gray-50 dark:bg-ghDarker p-4 flex justify-between items-center sticky top-0 z-10">
+                            <div className="flex items-center gap-3">
+                                <div className="bg-gray-900 dark:bg-white text-white dark:text-gray-900 p-2 rounded-lg">
+                                    <Icon name="code-branch" className="text-xl" />
+                                </div>
+                                <h1 className="text-xl font-bold dark:text-white">GitStart</h1>
+                            </div>
+                            <div className="flex items-center gap-4">
+                                <ThemeToggle isDark={isDark} toggle={toggleTheme} />
+                                {completedSteps.length > 0 && (
+                                    <button onClick={() => setView('course')} className="text-gray-600 dark:text-gray-300 font-medium hover:text-ghBlue">
+                                        Davom etish
+                                    </button>
+                                )}
+                            </div>
+                        </nav>
+
+                        {/* Hero */}
+                        <div className="max-w-5xl mx-auto px-6 py-16 md:py-24 grid md:grid-cols-2 gap-12 items-center">
+                            <div>
+                                <h2 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white leading-tight mb-6">
+                                    Noldan boshlang. <br/>
+                                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-ghGreen">
+                                        Loyihangizni yarating.
+                                    </span> <br/>
+                                    GitHub'ga joylang!
+                                </h2>
+                                <p className="text-lg text-gray-600 dark:text-gray-400 mb-8">
+                                    Dasturlashdan xabaringiz yo'qmi? Muammo emas. Biz sizni qadam-baqadam yetaklab, o'z veb-saytingizni internetga chiqarishingizga yordam beramiz.
+                                </p>
+                                <button 
+                                    onClick={() => setView('course')}
+                                    className="bg-ghGreen hover:bg-ghGreenHover text-white font-bold py-4 px-8 rounded-lg shadow-lg transform transition hover:-translate-y-1 flex items-center gap-3 text-lg"
+                                >
+                                    O'rganishni boshlash <Icon name="arrow-right" />
+                                </button>
+                                
+                                {completedSteps.length > 0 && (
+                                    <div className="mt-8 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg inline-block border border-gray-200 dark:border-ghBorder">
+                                        <p className="text-sm text-gray-600 dark:text-gray-400 font-medium mb-2">Sizning natijangiz:</p>
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-48 h-3 bg-gray-300 dark:bg-gray-700 rounded-full overflow-hidden">
+                                                <div className="h-full bg-ghGreen" style={{ width: `${progressPercent}%` }}></div>
+                                            </div>
+                                            <span className="font-bold dark:text-white">{progressPercent}%</span>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                            <div className="relative">
+                                <div className="absolute inset-0 bg-gradient-to-tr from-blue-100 to-green-50 dark:from-[#0d1117] dark:to-[#010409] transform rounded-3xl -rotate-6"></div>
+                                <div className="relative bg-white dark:bg-[#161b22] border border-gray-200 dark:border-ghBorder rounded-2xl shadow-2xl p-6">
+                                    <div className="flex items-center gap-2 mb-4 pb-4 border-b border-gray-100 dark:border-ghBorder">
+                                        <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                                        <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                                        <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                                        <div className="ml-2 text-xs text-gray-400 font-mono">bash</div>
+                                    </div>
+                                    <div className="font-mono text-sm">
+                                        <p className="text-gray-400 dark:text-gray-500">$ git add .</p>
+                                        <p className="text-gray-400 dark:text-gray-500">$ git commit -m "Birinchi qadam"</p>
+                                        <p className="text-blue-600 dark:text-ghBlue mt-2">[main (root-commit) 8f3a9b1] Birinchi qadam</p>
+                                        <p className="text-gray-600 dark:text-gray-300"> 1 file changed, 12 insertions(+)</p>
+                                        <p className="text-gray-400 dark:text-gray-500 mt-2">$ git push origin main</p>
+                                        <p className="text-ghGreen mt-2">To https://github.com/... <br/> * [new branch] main -&gt; main</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Features */}
+                        <div className="bg-gray-50 dark:bg-ghDarker py-16 border-t border-gray-200 dark:border-ghBorder">
+                            <div className="max-w-5xl mx-auto px-6 grid md:grid-cols-3 gap-8">
+                                <div className="p-6 bg-white dark:bg-ghDark rounded-xl shadow-sm border border-gray-100 dark:border-ghBorder">
+                                    <Icon name="laptop-code" className="text-3xl text-ghBlue mb-4" />
+                                    <h3 className="text-xl font-bold dark:text-white mb-2">Amaliyot asosida</h3>
+                                    <p className="text-gray-600 dark:text-gray-400">Faqat quruq nazariya emas, haqiqiy veb-loyiha yaratib o'rganamiz.</p>
+                                </div>
+                                <div className="p-6 bg-white dark:bg-ghDark rounded-xl shadow-sm border border-gray-100 dark:border-ghBorder">
+                                    <Icon name="tachometer-alt" className="text-3xl text-ghGreen mb-4" />
+                                    <h3 className="text-xl font-bold dark:text-white mb-2">O'z tezligingizda</h3>
+                                    <p className="text-gray-600 dark:text-gray-400">Vazifalarni istalgan paytda to'xtatib, keyin davom ettirishingiz mumkin.</p>
+                                </div>
+                                <div className="p-6 bg-white dark:bg-ghDark rounded-xl shadow-sm border border-gray-100 dark:border-ghBorder">
+                                    <Icon name="check-double" className="text-3xl text-purple-500 mb-4" />
+                                    <h3 className="text-xl font-bold dark:text-white mb-2">Doimiy nazorat</h3>
+                                    <p className="text-gray-600 dark:text-gray-400">Har bir qadam maxsus mini-testlar yordamida tekshirib boriladi.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            // Course View
+            return (
+                <div className="min-h-screen bg-gray-50 dark:bg-ghDark flex flex-col md:flex-row transition-colors duration-200">
+                    
+                    {/* Sidebar / Navigation */}
+                    <aside className="w-full md:w-80 bg-white dark:bg-[#161b22] border-r border-gray-200 dark:border-ghBorder flex flex-col md:h-screen sticky top-0 z-20">
+                        <div className="p-4 border-b border-gray-200 dark:border-ghBorder flex justify-between items-center bg-gray-50 dark:bg-ghDarker">
+                            <button onClick={() => setView('landing')} className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium flex items-center gap-2">
+                                <Icon name="arrow-left" /> Bosh sahifa
+                            </button>
+                            <ThemeToggle isDark={isDark} toggle={toggleTheme} />
+                        </div>
+                        
+                        <div className="p-6 border-b border-gray-200 dark:border-ghBorder">
+                            <h2 className="text-sm uppercase tracking-wider text-gray-500 dark:text-gray-400 font-bold mb-3">Umumiy Progress</h2>
+                            <div className="flex items-center gap-3">
+                                <div className="flex-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                                    <div className="h-full bg-ghGreen transition-all duration-500" style={{ width: `${progressPercent}%` }}></div>
+                                </div>
+                                <span className="text-sm font-bold dark:text-white">{progressPercent}%</span>
+                            </div>
+                        </div>
+
+                        <div className="flex-1 overflow-y-auto p-4 hide-scrollbar">
+                            {curriculum.map((stage, stageIdx) => (
+                                <div key={stage.id} className="mb-6">
+                                    <h3 className="font-bold text-gray-900 dark:text-gray-200 mb-3 ml-2 text-sm">{stage.title}</h3>
+                                    <div className="space-y-1">
+                                        {stage.steps.map((s, stepIdx) => {
+                                            const isCompleted = completedSteps.includes(s.id);
+                                            const isCurrent = currentStepId === s.id;
+                                            
+                                            // Step is accessible if it's completed, current, or it's the very first step, 
+                                            // or the immediate previous step is completed.
+                                            const sIndex = allSteps.findIndex(as => as.id === s.id);
+                                            const isAccessible = isCompleted || sIndex === 0 || completedSteps.includes(allSteps[sIndex - 1].id);
+
+                                            return (
+                                                <button
+                                                    key={s.id}
+                                                    onClick={() => goToStep(s.id)}
+                                                    disabled={!isAccessible}
+                                                    className={`w-full text-left px-3 py-2.5 rounded-lg text-sm flex items-center gap-3 transition-colors ${
+                                                        isCurrent 
+                                                        ? 'bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-400 font-medium shadow-sm' 
+                                                        : isAccessible 
+                                                            ? 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300' 
+                                                            : 'opacity-50 cursor-not-allowed text-gray-400 dark:text-gray-600'
+                                                    }`}
+                                                >
+                                                    <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${
+                                                        isCompleted ? 'bg-ghGreen text-white' : 
+                                                        isCurrent ? 'bg-blue-600 text-white' : 
+                                                        isAccessible ? 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400' : 'bg-transparent text-gray-400'
+                                                    }`}>
+                                                        {isCompleted ? <Icon name="check" className="text-xs" /> : 
+                                                         !isAccessible ? <Icon name="lock" className="text-xs" /> : 
+                                                         <span className="text-xs">{sIndex + 1}</span>}
+                                                    </div>
+                                                    <span className="truncate">{s.title}</span>
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                        <div className="p-4 border-t border-gray-200 dark:border-ghBorder">
+                            <button onClick={resetProgress} className="text-xs text-red-500 hover:text-red-700 font-medium w-full text-left flex items-center gap-2">
+                                <Icon name="trash-alt" /> Progressni tozalash
+                            </button>
+                        </div>
+                    </aside>
+
+                    {/* Main Content Area */}
+                    <main className="flex-1 flex flex-col h-screen overflow-y-auto">
+                        <div className="max-w-3xl mx-auto w-full px-6 py-10 pb-32">
+                            {/* Breadcrumb */}
+                            <div className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-6 flex items-center gap-2">
+                                <span>{currentStage.title}</span>
+                                <Icon name="chevron-right" className="text-xs mx-1" />
+                                <span className="text-gray-900 dark:text-gray-200">{currentStep.title}</span>
+                            </div>
+
+                            <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white mb-8">
+                                {currentStep.title}
+                            </h1>
+
+                            <div className="space-y-8 prose dark:prose-invert max-w-none">
+                                
+                                {/* Maqsad */}
+                                <section className="bg-white dark:bg-[#161b22] border border-gray-200 dark:border-ghBorder rounded-xl p-6 shadow-sm">
+                                    <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2 mb-3">
+                                        <Icon name="bullseye" className="text-red-500" /> Maqsad
+                                    </h3>
+                                    <p className="text-gray-700 dark:text-gray-300 m-0">{currentStep.goal}</p>
+                                </section>
+
+                                {/* Tushuntirish */}
+                                <section>
+                                    <h3 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2 mb-4 pb-2 border-b border-gray-200 dark:border-ghBorder">
+                                        <Icon name="info-circle" className="text-blue-500" /> Tushuntirish
+                                    </h3>
+                                    <p className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line">
+                                        {currentStep.explanation}
+                                    </p>
+                                </section>
+
+                                {/* Amaliy Ko'rsatma */}
+                                <section>
+                                    <h3 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2 mb-4 pb-2 border-b border-gray-200 dark:border-ghBorder">
+                                        <Icon name="keyboard" className="text-gray-600 dark:text-gray-400" /> Amaliy ko'rsatma
+                                    </h3>
+                                    <p className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line mb-4">
+                                        {currentStep.instruction}
+                                    </p>
+                                    
+                                    <CodeBlock code={currentStep.code} />
+                                </section>
+
+                                {/* Kutilayotgan natija */}
+                                <section className="bg-gray-100 dark:bg-gray-800/50 rounded-xl p-6 border-l-4 border-ghGreen">
+                                    <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2 mb-2">
+                                        <Icon name="eye" className="text-ghGreen" /> Kutilayotgan natija
+                                    </h3>
+                                    <p className="text-gray-700 dark:text-gray-300 m-0 text-sm">
+                                        {currentStep.expected}
+                                    </p>
+                                </section>
+                            </div>
+
+                            {/* Quiz / Action Verification */}
+                            {(!isCurrentStepPassed && (currentStep.quiz || currentStep.actionCheck)) && (
+                                <QuizOrAction step={currentStep} onPass={handlePassStep} />
+                            )}
+                            
+                            {/* Next Step Button */}
+                            <div className="mt-12 flex justify-end border-t border-gray-200 dark:border-ghBorder pt-6">
+                                <button
+                                    onClick={() => {
+                                        if(!currentStep.quiz && !currentStep.actionCheck) {
+                                            handlePassStep(); // Auto pass if no quiz
+                                        }
+                                        goToNextStep();
+                                    }}
+                                    disabled={!isCurrentStepPassed && (currentStep.quiz || currentStep.actionCheck)}
+                                    className={`py-3 px-8 rounded-lg font-bold flex items-center gap-2 transition-all ${
+                                        (isCurrentStepPassed || (!currentStep.quiz && !currentStep.actionCheck))
+                                        ? 'bg-ghGreen hover:bg-ghGreenHover text-white cursor-pointer shadow-md transform hover:-translate-y-0.5' 
+                                        : 'bg-gray-200 dark:bg-gray-800 text-gray-400 dark:text-gray-600 cursor-not-allowed'
+                                    }`}
+                                >
+                                    {currentStepIndex === totalSteps - 1 ? "Kursni yakunlash" : "Keyingi qadam"} 
+                                    <Icon name={currentStepIndex === totalSteps - 1 ? "flag-checkered" : "arrow-right"} />
+                                </button>
+                            </div>
+                            
+                            {/* Final completion message */}
+                            {currentStepIndex === totalSteps - 1 && completedSteps.includes(currentStepId) && (
+                                <div className="mt-8 p-8 bg-gradient-to-r from-ghGreen to-blue-600 rounded-2xl text-white text-center shadow-2xl animate-fade-in-up">
+                                    <Icon name="trophy" className="text-5xl text-yellow-300 mb-4 drop-shadow-lg" />
+                                    <h2 className="text-3xl font-bold mb-4">Ajoyib natija!</h2>
+                                    <p className="text-lg opacity-90 mb-6">Siz Git va GitHub asoslarini noldan boshlab amalda o'rganib chiqdingiz va o'z veb-saytingizni yaratdingiz.</p>
+                                    <button onClick={() => setView('landing')} className="bg-white text-gray-900 hover:bg-gray-100 font-bold py-3 px-8 rounded-full transition-colors">
+                                        Bosh sahifaga qaytish
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    </main>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
